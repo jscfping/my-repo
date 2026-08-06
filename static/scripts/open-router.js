@@ -2,6 +2,9 @@ const vm = new Vue({
     el: "#app",
     data: {
         apiKey: "",
+        models: `deepseek/deepseek-v4-flash-0731
+deepseek/deepseek-chat-v3.1
+deepseek/deepseek-v4-pro`,
         chatGPTData1: {
             headData: [
                 {
@@ -14,7 +17,7 @@ const vm = new Vue({
                     ]
                 }
             ],
-            model: "deepseek/deepseek-v4-flash",
+            model: "",
             temperature: 0.8,
             max_tokens: 8192,
             top_p: 1,
@@ -36,7 +39,7 @@ const vm = new Vue({
                     ]
                 }
             ],
-            model: "deepseek/deepseek-v4-flash",
+            model: "",
             temperature: 0.8,
             max_tokens: 8192,
             top_p: 1,
@@ -49,7 +52,10 @@ const vm = new Vue({
     },
     mounted() {
         const urlParams = new URLSearchParams(window.location.search);
+        const defaultModel = this.models.split("\n")[0].trim();
         this.apiKey = urlParams.get("apiKey");
+        this.chatGPTData1.model = defaultModel;
+        this.chatGPTData2.model = defaultModel;
         const system1 = urlParams.get("system1");
         const system2 = urlParams.get("system2");
         if (system1) {
@@ -81,6 +87,10 @@ const vm = new Vue({
 
             const reqData = {
                 model: chatGPTData.model,
+                provider: {
+                    order: ["NovitaAI"],
+                    allow_fallbacks: true
+                },
                 messages: chatGPTData.headData.concat({
                     role: "user",
                     content: [

@@ -20,9 +20,7 @@
 <body>
     <div id="app">
         apiKey<input v-model="apiKey"><br>
-        <textarea cols="30" rows="5">deepseek/deepseek-chat-v3.1
-deepseek/deepseek-v4-flash
-deepseek/deepseek-v4-pro</textarea><br>
+        <textarea cols="30" rows="5" v-model="models"></textarea><br>
         <div class="box">
             <div class="half">
                 model<input v-model="chatGPTData1.model" size="30"><br>
