@@ -1,6 +1,9 @@
 
 *.7z
 
+**.crt
+**.key
+
 
 # Logs
 logs
