@@ -4,6 +4,7 @@
 
 
 ```bash
+sudo -i
 curl -fsSL https://opencode.ai/install | bash
 source ~/.bashrc
 
