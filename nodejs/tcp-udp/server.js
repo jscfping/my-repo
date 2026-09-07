@@ -6,9 +6,9 @@ const dgram = require("dgram");
 const path = require("path");
 
 const HOST = process.argv[2];
-const TCP_PORT = 3000;
-const UDP_PORT = 3001;
-const HTTP_PORT = 3002;
+const TCP_PORT = 3001;
+const UDP_PORT = 3002;
+const HTTP_PORT = 3003;
 const HTTPS_PORT = 3004;
 const certificateDirectory = path.join(__dirname, "certs");
 

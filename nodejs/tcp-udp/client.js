@@ -4,9 +4,9 @@ const net = require("net");
 const dgram = require("dgram");
 
 const host = process.argv[2];
-const tcpPort = 3000;
-const udpPort = 3001;
-const httpPort = 3002;
+const tcpPort = 3001;
+const udpPort = 3002;
+const httpPort = 3003;
 const httpsPort = 3004;
 
 function wait(milliseconds) {
