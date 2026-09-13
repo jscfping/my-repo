@@ -1,0 +1,10 @@
+{
+    "456.txt": {
+        "len": 5,
+        "xxh3128": "5af3da69f61e14cf26f4c14b6b6bfdb4"
+    },
+    "789.txt": {
+        "len": 5,
+        "xxh3128": "4af3da69f61e14cf26f4c14b6b6bfdb4"
+    }
+}

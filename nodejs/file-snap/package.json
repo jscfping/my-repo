@@ -1,0 +1,8 @@
+{
+  "name": "file-snap",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "hash-wasm": "^4.12.0"
+  }
+}
