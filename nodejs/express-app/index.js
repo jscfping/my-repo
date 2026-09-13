@@ -15,6 +15,7 @@ app.get("/", (req, res) => {
 
 // curl -N -X POST http://localhost:3000/spawn -H 'Content-Type: application/json' --data-raw '{"cmd":"powershell.exe","args":["-NoProfile","-NonInteractive","-Command","[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; dir C:\\"]}'
 // curl -N -X POST http://localhost:3000/spawn -H 'Content-Type: application/json' --data-raw '{"cmd":"bash","args":["-lc","ls /c"]}'
+// curl -N -X POST http://localhost:3000/spawn -H 'Content-Type: application/json' --data-raw '{"cmd":"ls","args":["/"]}'
 
 app.post("/spawn", (req, res) => {
     const { cmd, args = [] } = req.body ?? {};
