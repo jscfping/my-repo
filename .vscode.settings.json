@@ -1,0 +1,15 @@
+{
+    "editor.fontSize": 18,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "git.enableSmartCommit": true,
+    "[markdown]": {
+        "editor.wordWrap": "off"
+    },
+    "workbench.tree.indent": 16,
+    "workbench.list.openMode": "doubleClick",
+    "terminal.integrated.stickyScroll.enabled": false,
+    "terminal.integrated.suggest.enabled": false,
+    "workbench.iconTheme": "material-icon-theme",
+    "terminal.integrated.initialHint": false,
+    "diffEditor.ignoreTrimWhitespace": false
+}
