@@ -9,7 +9,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const [portArgument, ticketFolder, ticketLog] = process.argv.slice(2);
 const port = Number(portArgument);
 
-if(!port || !ticketFolder || !ticketLog) {
+if (!port || !ticketFolder || !ticketLog) {
     console.error("Port, ticket folder, and ticket log must be specified");
     process.exit(1);
 }
@@ -24,6 +24,11 @@ function formatTimestamp(date = new Date()) {
 
     return `${yy}${MM}${dd}_${HH}${mm}${ss}`;
 }
+
+
+app.get("/", (req, res) => {
+    res.type("text/plain").send(`curl -X POST http://localhost:3000/tickets -F "title=title" -F "content=content" -F "files=@/c/temp/test.txt"`);
+});
 
 app.post("/tickets", upload.array("files"), async (req, res, next) => {
     try {
@@ -95,7 +100,7 @@ app.use((error, req, res, next) => {
 
 
 app.listen(port, () => {
-    console.log(`Ticket API listening on port ${port}`);
+    console.log(`Ticket API listening on http://localhost:${port}`);
 });
 
 
