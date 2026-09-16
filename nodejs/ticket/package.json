@@ -1,0 +1,12 @@
+{
+    "name": "ticket-api",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Simple API for creating tickets with uploaded files",
+    "main": "index.js",
+    "scripts": {},
+    "dependencies": {
+        "express": "^5.1.0",
+        "multer": "^2.0.2"
+    }
+}
