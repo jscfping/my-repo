@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>進位轉換</title>
+    <style>
+        body {
+            max-width: 720px;
+            margin: 32px auto;
+            padding: 0 16px;
+            font-family: sans-serif;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        #value {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        td input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <label for="value">輸入數值</label>
+    <input id="value" type="text" autocomplete="off" spellcheck="false">
+
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2" scope="col">輸入框視為</th>
+                <th colspan="3" scope="colgroup">轉為</th>
+            </tr>
+            <tr>
+                <th scope="col">二進位</th>
+                <th scope="col">十進位</th>
+                <th scope="col">HEX</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr data-radix="2">
+                <th scope="row">二進位</th>
+                <td><input type="text" readonly aria-label="二進位輸入轉為二進位"></td>
+                <td><input type="text" readonly aria-label="二進位輸入轉為十進位"></td>
+                <td><input type="text" readonly aria-label="二進位輸入轉為 HEX"></td>
+            </tr>
+            <tr data-radix="10">
+                <th scope="row">十進位</th>
+                <td><input type="text" readonly aria-label="十進位輸入轉為二進位"></td>
+                <td><input type="text" readonly aria-label="十進位輸入轉為十進位"></td>
+                <td><input type="text" readonly aria-label="十進位輸入轉為 HEX"></td>
+            </tr>
+            <tr data-radix="16">
+                <th scope="row">HEX</th>
+                <td><input type="text" readonly aria-label="HEX 輸入轉為二進位"></td>
+                <td><input type="text" readonly aria-label="HEX 輸入轉為十進位"></td>
+                <td><input type="text" readonly aria-label="HEX 輸入轉為 HEX"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const valueInput = document.querySelector("#value");
+        const rows = document.querySelectorAll("tbody tr");
+
+        function parseValue(value, radix) {
+            const match = value.trim().match(/^([+-]?)([0-9a-fA-F]+)$/);
+            if (!match) return null;
+
+            const digits = match[2];
+            const validDigits = radix === 2
+                ? /^[01]+$/.test(digits)
+                : radix === 10
+                    ? /^[0-9]+$/.test(digits)
+                    : /^[0-9a-fA-F]+$/.test(digits);
+            if (!validDigits) return null;
+
+            const prefix = radix === 2 ? "0b" : radix === 16 ? "0x" : "";
+            const number = BigInt(prefix + digits);
+            return match[1] === "-" ? -number : number;
+        }
+
+        function updateConversions() {
+            rows.forEach((row) => {
+                const number = parseValue(valueInput.value, Number(row.dataset.radix));
+                const results = number === null
+                    ? ["", "", ""]
+                    : [number.toString(2), number.toString(10), number.toString(16).toUpperCase()];
+
+                row.querySelectorAll("input").forEach((output, index) => {
+                    output.value = results[index];
+                });
+            });
+        }
+
+        valueInput.addEventListener("input", updateConversions);
+    </script>
+</body>
+
+</html>
