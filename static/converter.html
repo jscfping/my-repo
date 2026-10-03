@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Converter</title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+
+<body class="m-2 font-sans text-gray-900">
+    <main id="app" class="space-y-6" v-cloak>
+        <h1 class="text-2xl font-bold">NumConverter</h1>
+
+        <table class="table-fixed w-full border-collapse border border-gray-500">
+            <thead>
+                <tr>
+                    <th class="align-top border border-gray-500 p-2" rowspan="2" scope="col"><textarea id="value" class="block box-border w-full resize-y rounded border border-gray-400 bg-white p-2 font-mono" v-model="NumConverter.input" rows="5" cols="30" wrap="off" autocomplete="off" spellcheck="false"></textarea></th>
+                    <th class="align-middle border border-gray-500 p-2 text-center" colspan="3" scope="colgroup">Convert to</th>
+                </tr>
+                <tr>
+                    <th class="align-top border border-gray-500 p-2" scope="col">Binary</th>
+                    <th class="align-top border border-gray-500 p-2" scope="col">Decimal</th>
+                    <th class="align-top border border-gray-500 p-2" scope="col">HEX</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="row in radixRows" :key="row.radix">
+                    <th class="align-top border border-gray-500 p-2" scope="row">{{ row.label }}</th>
+                    <td class="align-top border border-gray-500 p-2" v-for="(outputKey, index) in row.outputKeys" :key="outputKey">
+                        <textarea class="block box-border w-full resize-y rounded border border-gray-400 bg-gray-100 p-2 font-mono" :value="NumConverter[outputKey]" rows="3" readonly
+                            :aria-label="`${row.label} input converted to ${outputLabels[index]}`"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <section class="space-y-3" aria-labelledby="base64-heading">
+            <h2 id="base64-heading" class="text-xl font-bold">Base64 converter</h2>
+            <div class="overflow-x-auto">
+                <table class="table-fixed w-full min-w-[1280px] border-collapse">
+                    <colgroup>
+                        <col class="w-[38%]">
+                        <col class="w-[62%]">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td class="align-top border border-gray-500 p-2">
+                                <table class="table-fixed h-full w-full border-collapse">
+                                    <tbody>
+                                        <tr>
+                                            <td class="align-top border border-gray-500 p-2">
+                                                <label class="mb-1 block font-bold" for="base64-value">Base64 input</label>
+                                                <textarea id="base64-value" class="block box-border h-[13.2rem] w-full resize-y rounded border border-gray-400 bg-white p-2 font-mono" v-model="Base64Converter.input" rows="12" wrap="off"
+                                                    autocomplete="off" spellcheck="false"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top border border-gray-500 p-2">
+                                                <label class="mb-1 block font-bold" for="base64-padded">Base64 output (with padding)</label>
+                                                <textarea id="base64-padded" class="block box-border h-[13.2rem] w-full resize-y rounded border border-gray-400 bg-gray-100 p-2 font-mono" :value="Base64Converter.outputBase64" rows="12" wrap="off"
+                                                    readonly></textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td class="align-top border border-gray-500 p-2">
+                                <table class="table-fixed w-full border-collapse">
+                                    <colgroup>
+                                        <col class="w-[70%]">
+                                        <col class="w-[30%]">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="align-top border border-gray-500 p-2 text-left" scope="col">HEX output (uppercase, 16 bytes per line)</th>
+                                            <th class="align-top border border-gray-500 p-2 text-left" scope="col">ASCII output (16 bytes per line; non-printable as .)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="align-top border border-gray-500 p-2">
+                                                <label class="sr-only" for="base64-hex">HEX output</label>
+                                                <textarea id="base64-hex" class="block box-border h-[28rem] w-full resize-y whitespace-pre rounded border border-gray-400 bg-gray-100 p-2 font-mono" :value="Base64Converter.outputHex" rows="16" wrap="off"
+                                                    readonly></textarea>
+                                            </td>
+                                            <td class="align-top border border-gray-500 p-2">
+                                                <label class="sr-only" for="base64-ascii">ASCII output</label>
+                                                <textarea id="base64-ascii" class="block box-border h-[28rem] w-full resize-y whitespace-pre rounded border border-gray-400 bg-gray-100 p-2 font-mono" :value="Base64Converter.outputAscii" rows="16" wrap="off"
+                                                    readonly></textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-red-700" v-if="Base64Converter.error" role="alert">{{ Base64Converter.error }}</p>
+        </section>
+
+        <section class="space-y-3" aria-labelledby="hex-heading">
+            <h2 id="hex-heading" class="text-xl font-bold">HEX converter</h2>
+            <div class="overflow-x-auto">
+                <table class="table-fixed w-full min-w-[1280px] border-collapse">
+                    <colgroup>
+                        <col class="w-[38%]">
+                        <col class="w-[62%]">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td class="align-top border border-gray-500 p-2">
+                                <label class="mb-1 block font-bold" for="hex-value">HEX input (only 0-9A-F characters are used)</label>
+                                <textarea id="hex-value" class="block box-border h-[28rem] w-full resize-y rounded border border-gray-400 bg-white p-2 font-mono" v-model="HexConverter.input" rows="16" wrap="off" autocomplete="off" spellcheck="false"></textarea>
+                            </td>
+                            <td class="align-top border border-gray-500 p-2">
+                                <table class="table-fixed w-full border-collapse">
+                                    <colgroup>
+                                        <col class="w-[70%]">
+                                        <col class="w-[30%]">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="align-top border border-gray-500 p-2 text-left" scope="col">Base64 output (with padding)</th>
+                                            <th class="align-top border border-gray-500 p-2 text-left" scope="col">ASCII output (16 bytes per line; non-printable as .)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="align-top border border-gray-500 p-2">
+                                                <label class="sr-only" for="hex-base64">Base64 output</label>
+                                                <textarea id="hex-base64" class="block box-border h-[28rem] w-full resize-y whitespace-pre rounded border border-gray-400 bg-gray-100 p-2 font-mono" :value="HexConverter.outputBase64" rows="16" wrap="off" readonly></textarea>
+                                            </td>
+                                            <td class="align-top border border-gray-500 p-2">
+                                                <label class="sr-only" for="hex-ascii">ASCII output</label>
+                                                <textarea id="hex-ascii" class="block box-border h-[28rem] w-full resize-y whitespace-pre rounded border border-gray-400 bg-gray-100 p-2 font-mono" :value="HexConverter.outputAscii" rows="16" wrap="off" readonly></textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-red-700" v-if="HexConverter.error" role="alert">{{ HexConverter.error }}</p>
+        </section>
+    </main>
+
+    <script>
+        const { reactive, watch } = Vue;
+
+        function toPrintableAsciiLines(binary) {
+            const ascii = Array.from(binary, (character) => {
+                const code = character.charCodeAt(0);
+                return code >= 0x20 && code <= 0x7E ? character : ".";
+            });
+            const lines = [];
+            for (let index = 0; index < ascii.length; index += 16) {
+                lines.push(ascii.slice(index, index + 16).join(""));
+            }
+            return lines.join("\n");
+        }
+
+        function parseValue(value, radix) {
+            const validDigits = radix === 2
+                ? /^[01]+$/.test(value)
+                : radix === 10
+                    ? /^[0-9]+$/.test(value)
+                    : /^[0-9A-F]+$/.test(value);
+            if (!validDigits) return null;
+
+            const prefix = radix === 2 ? "0b" : radix === 16 ? "0x" : "";
+            return BigInt(prefix + value);
+        }
+
+        Vue.createApp({
+            setup() {
+                const NumConverter = reactive({
+                    input: "",
+                    output2To2: "",
+                    output2To10: "",
+                    output2To16: "",
+                    output10To2: "",
+                    output10To10: "",
+                    output10To16: "",
+                    output16To2: "",
+                    output16To10: "",
+                    output16To16: ""
+                });
+                const Base64Converter = reactive({
+                    input: "",
+                    outputBase64: "",
+                    outputHex: "",
+                    outputAscii: "",
+                    error: ""
+                });
+                const HexConverter = reactive({
+                    input: "",
+                    outputBase64: "",
+                    outputAscii: "",
+                    error: ""
+                });
+                const outputLabels = ["Binary", "Decimal", "HEX"];
+                const radixRows = [
+                    {
+                        radix: 2,
+                        label: "Binary",
+                        outputKeys: ["output2To2", "output2To10", "output2To16"]
+                    },
+                    {
+                        radix: 10,
+                        label: "Decimal",
+                        outputKeys: ["output10To2", "output10To10", "output10To16"]
+                    },
+                    {
+                        radix: 16,
+                        label: "HEX",
+                        outputKeys: ["output16To2", "output16To10", "output16To16"]
+                    }
+                ];
+                watch(() => NumConverter.input, () => {
+                    const normalizedInput = NumConverter.input.toUpperCase().replace(/[^0-9A-F]/g, "");
+                    radixRows.forEach((row) => {
+                        const number = parseValue(normalizedInput, row.radix);
+                        const results = number === null
+                            ? ["", "", ""]
+                            : [number.toString(2), number.toString(10), number.toString(16).toUpperCase()];
+                        row.outputKeys.forEach((key, index) => {
+                            NumConverter[key] = results[index];
+                        });
+                    });
+                }, { immediate: true });
+                watch(() => HexConverter.input, () => {
+                    HexConverter.outputBase64 = "";
+                    HexConverter.outputAscii = "";
+                    HexConverter.error = "";
+
+                    const normalizedHex = HexConverter.input.toUpperCase().replace(/[^0-9A-F]/g, "");
+                    if (!normalizedHex) return;
+                    if (normalizedHex.length % 2 !== 0) {
+                        HexConverter.error = "HEX input must contain an even number of hexadecimal digits after filtering.";
+                        return;
+                    }
+
+                    const characters = [];
+                    for (let index = 0; index < normalizedHex.length; index += 2) {
+                        characters.push(String.fromCharCode(Number.parseInt(normalizedHex.slice(index, index + 2), 16)));
+                    }
+                    const binary = characters.join("");
+                    HexConverter.outputBase64 = btoa(binary);
+                    HexConverter.outputAscii = toPrintableAsciiLines(binary);
+                }, { immediate: true });
+                watch(() => Base64Converter.input, () => {
+                    Base64Converter.outputBase64 = "";
+                    Base64Converter.outputHex = "";
+                    Base64Converter.outputAscii = "";
+                    Base64Converter.error = "";
+                    if (!Base64Converter.input.trim()) return;
+
+                    try {
+                        const compactBase64 = Base64Converter.input.replace(/[\t\n\f\r ]/g, "");
+                        const match = compactBase64.match(/^([A-Za-z0-9+/]*)(={0,2})$/);
+                        if (!match) {
+                            Base64Converter.error = "Invalid Base64 format.";
+                            return;
+                        }
+
+                        const [, digits, padding] = match;
+                        const remainder = digits.length % 4;
+                        const validPadding = remainder === 0
+                            ? padding.length === 0
+                            : remainder === 2
+                                ? padding.length === 0 || padding === "=="
+                                : remainder === 3
+                                    ? padding.length === 0 || padding === "="
+                                    : false;
+                        if (!validPadding) {
+                            Base64Converter.error = "Invalid Base64 format.";
+                            return;
+                        }
+
+                        const paddedBase64 = digits + "=".repeat((4 - remainder) % 4);
+                        const binary = atob(paddedBase64);
+                        const bytes = Array.from(binary, (character) =>
+                            character.charCodeAt(0).toString(16).padStart(2, "0").toUpperCase()
+                        );
+                        const lines = [];
+                        for (let index = 0; index < bytes.length; index += 16) {
+                            lines.push(bytes.slice(index, index + 16).join(" "));
+                        }
+                        Base64Converter.outputBase64 = paddedBase64;
+                        Base64Converter.outputHex = lines.join("\n");
+                        Base64Converter.outputAscii = toPrintableAsciiLines(binary);
+                    } catch {
+                        Base64Converter.outputBase64 = "";
+                        Base64Converter.outputHex = "";
+                        Base64Converter.outputAscii = "";
+                        Base64Converter.error = "Invalid Base64 format.";
+                    }
+                }, { immediate: true });
+
+                return {
+                    NumConverter,
+                    Base64Converter,
+                    HexConverter,
+                    radixRows,
+                    outputLabels
+                };
+            }
+        }).mount("#app");
+    </script>
+</body>
+
+</html>
