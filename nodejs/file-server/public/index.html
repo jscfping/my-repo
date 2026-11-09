@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7f8">
+    <title>檔案傳輸站</title>
+    <link rel="stylesheet" href="/taiwan.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js" defer></script>
+    <script src="/app.js" defer></script>
+</head>
+<body>
+    <div id="app">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="檔案傳輸站首頁">
+                <span class="brand-mark">檔</span>
+                <span>檔案傳輸站</span>
+            </a>
+            <span class="network-badge"><span class="status-dot"></span>區域網路分享</span>
+        </header>
+
+        <main class="page-shell">
+            <section class="intro">
+                <div>
+                    <p class="eyebrow">簡單・安全・快速</p>
+                    <h1>管理共享檔案</h1>
+                    <p class="intro-copy">在同一個網路內，上傳、下載與整理檔案。</p>
+                </div>
+                <div class="intro-decoration" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                </div>
+            </section>
+
+            <section class="card file-card">
+                <div class="toolbar">
+                    <div class="location">
+                        <div class="folder-icon" aria-hidden="true">📁</div>
+                        <div>
+                            <h2>共享資料夾</h2>
+                            <p class="muted path-text">/{{ directory }}</p>
+                        </div>
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="button button-secondary" type="button" :disabled="loading" @click="createFolder">
+                            <span aria-hidden="true">＋</span> 新增資料夾
+                        </button>
+                        <label class="button button-secondary file-picker">
+                            <span aria-hidden="true">＋</span> 選擇檔案
+                            <input type="file" multiple @change="selectFiles">
+                        </label>
+                        <button class="button button-primary" type="button" :disabled="!filesToUpload.length || loading" @click="uploadFiles">
+                            {{ loading && uploadInProgress ? "上傳中…" : `上傳${filesToUpload.length ? ` (${filesToUpload.length})` : ""}` }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="filesToUpload.length" class="upload-queue">
+                    <span>待上傳：{{ filesToUpload.map(file => file.name).join("、") }}</span>
+                    <button type="button" class="text-button" @click="filesToUpload = []">清除</button>
+                </div>
+
+                <p v-if="errorMessage" class="message message-error" role="alert">{{ errorMessage }}</p>
+                <p v-if="successMessage" class="message message-success" role="status">{{ successMessage }}</p>
+
+                <div class="list-heading">
+                    <div class="breadcrumbs" aria-label="資料夾位置">
+                        <button class="breadcrumb" type="button" @click="loadDirectory('')">共享資料夾</button>
+                        <template v-for="(part, index) in pathParts" :key="index">
+                            <span class="breadcrumb-separator">/</span>
+                            <button class="breadcrumb" type="button" @click="loadDirectory(pathParts.slice(0, index + 1).join('/'))">{{ part }}</button>
+                        </template>
+                    </div>
+                    <button class="text-button refresh-button" type="button" :disabled="loading" @click="loadDirectory(directory)">重新整理</button>
+                </div>
+
+                <div v-if="loading && !entries.length" class="empty-state">載入檔案中…</div>
+                <div v-else-if="!entries.length" class="empty-state">
+                    <span class="empty-icon" aria-hidden="true">🗂️</span>
+                    <strong>這裡還沒有檔案</strong>
+                    <span class="muted">選擇檔案後即可批次上傳。</span>
+                </div>
+                <div v-else class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">名稱</th>
+                                <th scope="col" class="column-size">大小</th>
+                                <th scope="col" class="column-date">修改時間</th>
+                                <th scope="col" class="column-actions">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="entry in entries" :key="entry.name">
+                                <td>
+                                    <button v-if="entry.type === 'directory'" class="entry-name folder-link" type="button" @click="loadDirectory(joinDirectory(directory, entry.name))">
+                                        <span class="entry-icon" aria-hidden="true">📁</span>{{ entry.name }}
+                                    </button>
+                                    <span v-else class="entry-name">
+                                        <span class="entry-icon" aria-hidden="true">📄</span>{{ entry.name }}
+                                    </span>
+                                </td>
+                                <td class="column-size muted">{{ entry.type === "directory" ? "—" : formatSize(entry.size) }}</td>
+                                <td class="column-date muted">{{ formatDate(entry.modifiedAt) }}</td>
+                                <td class="column-actions">
+                                    <div class="row-actions">
+                                        <template v-if="entry.type === 'file'">
+                                            <button class="text-button" type="button" :disabled="loading" @click="downloadFile(entry)">下載</button>
+                                            <button class="text-button danger-link" type="button" :disabled="loading" @click="deleteFile(entry)">刪除</button>
+                                        </template>
+                                        <button v-else class="text-button danger-link" type="button" :disabled="loading" @click="deleteFolder(entry)">刪除</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <footer class="card-footer">
+                    <span>{{ entries.length }} 個項目</span>
+                </footer>
+            </section>
+
+            <p class="page-note">檔案僅能在啟動時指定的資料夾中存取。單檔大小受磁碟空間限制，每次最多 20 個檔案。</p>
+        </main>
+    </div>
+</body>
+</html>
