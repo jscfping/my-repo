@@ -104,7 +104,7 @@
                                 <td class="column-actions">
                                     <div class="row-actions">
                                         <template v-if="entry.type === 'file'">
-                                            <button class="text-button" type="button" :disabled="loading" @click="downloadFile(entry)">下載</button>
+                                            <a class="text-button" :href="downloadUrl(entry)">下載</a>
                                             <button class="text-button danger-link" type="button" :disabled="loading" @click="deleteFile(entry)">刪除</button>
                                         </template>
                                         <button v-else class="text-button danger-link" type="button" :disabled="loading" @click="deleteFolder(entry)">刪除</button>

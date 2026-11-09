@@ -48,6 +48,11 @@ createApp({
             successMessage.value = "";
         }
 
+        function downloadUrl(entry) {
+            const query = new URLSearchParams({ directory: directory.value, name: entry.name });
+            return `/api/download?${query}`;
+        }
+
         async function uploadFiles() {
             if (!filesToUpload.value.length) return;
             const form = new FormData();
@@ -69,25 +74,6 @@ createApp({
             } finally {
                 loading.value = false;
                 uploadInProgress.value = false;
-            }
-        }
-
-        async function downloadFile(entry) {
-            loading.value = true;
-            errorMessage.value = "";
-            try {
-                const query = new URLSearchParams({ directory: directory.value, name: entry.name });
-                const response = await api(`/api/download?${query}`);
-                const objectUrl = URL.createObjectURL(await response.blob());
-                const link = document.createElement("a");
-                link.href = objectUrl;
-                link.download = entry.name;
-                link.click();
-                URL.revokeObjectURL(objectUrl);
-            } catch (error) {
-                errorMessage.value = error.message;
-            } finally {
-                loading.value = false;
             }
         }
 
@@ -175,6 +161,7 @@ createApp({
 
         return {
             directory,
+            downloadUrl,
             entries,
             errorMessage,
             filesToUpload,
@@ -191,7 +178,6 @@ createApp({
             uploadFiles,
             uploadInProgress,
             deleteFile,
-            downloadFile
         };
     }
 }).mount("#app");
